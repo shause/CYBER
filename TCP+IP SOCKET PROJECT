@@ -1,0 +1,93 @@
+#SERVER SIDE
+# socket library
+import socket
+
+# creating the socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+print("Socket for client has been created.")
+
+# creating the port on the computer and the address for the localhost
+port = 80
+ip = '127.0.0.1'
+addr = (ip, port)
+
+# connecting the client to server
+sock.connect(addr)
+print("Connection has been established.")
+
+# open file the txt file 
+file = open("sending.txt", "r")
+
+# read data from the file 
+data = file.read()
+print(f'\nFile Data: ' + data + '\n')
+
+# sending file
+sock.send("sending.txt".encode("utf-8"))
+print("File has been sent")
+
+# receiving response message from client
+message = sock.recv(4096).decode("utf-8")
+print(message)
+
+# sending data to server
+sock.send(data.encode("utf-8"))
+
+# closing the file and the connection
+file.close()
+sock.close()
+print("Connection has been disconnected")
+
+#CLIENT SIDE
+# socket library
+import socket
+
+# creating the socket
+sock_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+print("Socket for server has been created.")
+
+# creating the port on the computer and the address for the localhost
+port = 80
+ip = '127.0.0.1'
+addr = (ip, port)
+
+# bind to the port, leave empty so the server can listen for requests 
+sock_server.bind(addr) 
+print("Socket has been binded.")
+
+# socket is listening 
+sock_server.listen()
+print("Server socket is listening for requests")
+
+while True:
+    # establishing a connection 
+    client, addr = sock_server.accept()
+    print('Connecting to ', addr)
+
+    # decode message from server
+    filename = client.recv(4096).decode("utf-8")
+    print("Filename is received")
+
+    # open file and display
+    file = open(filename, "w")
+
+    # send message back to client about receiving message
+    client.send("File is received".encode("utf-8"))
+    
+    # receiving data from client
+    data = client.recv(4096).decode("utf-8")
+    print("Data has been received")
+
+    # write data to the text file
+    file.write(data)
+    print(f'\nFile Data: ' + data + '\n')
+
+    #send message back to client that data has been written to file
+    client.send("File data has been written to the text file".encode("utf-8"))
+
+    # closing the file and the connection
+    file.close()
+    client.close()
+    print("Connection is disconnected")
+
+    break
