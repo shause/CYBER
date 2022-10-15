@@ -1,0 +1,57 @@
+# Sara Hause
+# Objective : Making a port scanner takes given IP address as input and a list of ports to try and make a TCP connection to the ports and try to receive a TCP acknowledge from that port (Testing if the port is open/vulnerable)
+
+from socket import *
+
+# main method to make the connection to the port
+def connScan(tgtHost, tgtPort):
+    try:
+        # connection socket assigned to a socket for AF_INET (IP/Ports) and SOCK_STREAM (TCP socket)
+        connsocket = socket(AF_INET, SOCK_STREAM)
+
+        # connection socket will connect to the target host and target port
+        connsocket.connect((tgtHost, tgtPort))
+
+        # print the results of the TCP connection if the connection is made
+        print('%d/tcp open'%tgtPort)
+
+        # closing the connection
+        connsocket.close()
+
+    # if connection was not made
+    except:
+        print('%d/tcp closed'%tgtPort)
+
+# method for scanning for open ports on the list provided
+def portScan(tgtHost, tgtPorts):
+    # try/excpet
+    try:
+        # testing if it can pull the host name from the IP address
+        tgtIP = gethostbyname(tgtHost)
+    except:    
+        print('Cannot reach %d' %tgtHost)
+        return
+
+    # try/except for getting host address from target IP
+    try:
+        # getting the host address from the tgtIP
+        tgtName = gethostbyaddr(tgtIP)
+        print('\nSuccessful Connection to: %s' %tgtName[0])
+    except:
+        print('Cannot reach %s' %tgtIP)
+
+    # setting the default timeout to reduce time spent
+    setdefaulttimeout(1)
+
+    # looping over the list provided for the ports
+    for tgtPort in tgtPorts:
+        print('Scanning Port: %d' %tgtPort)
+        
+        # calling the method to find if the port is open from the list of ports
+        connScan(tgtHost, int(tgtPort))
+        
+
+
+if __name__ == '__main__' :
+    # testing IPs
+    portScan('google.com', [80, 22])
